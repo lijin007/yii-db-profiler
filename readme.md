@@ -33,7 +33,7 @@ return array(
 			'routes'=>array(
 					// …
             	    array(
-                	    'class'=>'ext.db_profiler.DbProfileLogRoute',
+                	    'class'=>'ext.yii-db-profiler.DbProfileLogRoute',
 						'countLimit' => 1, // How many times the same query should be executed to be considered inefficient
 						'slowQueryMin' => 0.01, // Minimum time for the query to be slow
                 	),
