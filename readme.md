@@ -1,5 +1,12 @@
-DB profiler
+forked from samdark/yii-db-profiler
 ===========
+本来打算自己写过,结果发现已经有了. 那么就偷懒了,在其基础上实现真实sql语句输出. 原来是参数化的,不方便调试查看
+感谢原作者
+
+![image](https://raw.githubusercontent.com/lijin007/yii-db-profiler/master/example.jpg)
+
+DB profiler
+------------
 
 Instead of regular `CProfileLogRoute` DB profiler displays database queries and
 query-related info only. Also it have an ability to highligt possibly slow queries
