@@ -1,6 +1,6 @@
 <?php list($queryCount, $queryTime) = $app->db->getStats() ?>
 <!-- start profiling summary -->
-<table class="yiiLog" width="100%" cellpadding="2" style="border-spacing:1px;font:11px Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;color:#666666;">
+<table class="yiiLog" width="100%" cellpadding="2" style="border-spacing:1px;font:12px '宋体', Arial, Helvetica, sans-serif;background:#EEEEEE;color:#666666;">
 	<tr>
 		<th style="background:black;color:white;" colspan="6">
 			DB Profiling Summary Report
@@ -9,11 +9,11 @@
 	</tr>
 	<tr style="background-color: #ccc;">
 	    <th>Procedure</th>
-		<th>Count</th>
-		<th>Total (s)</th>
-		<th>Avg. (s)</th>
-		<th>Min. (s)</th>
-		<th>Max. (s)</th>
+		<th style="width:50px;">Count</th>
+		<th style="width:80px;">Total (s)</th>
+		<th style="width:80px;">Avg. (s)</th>
+		<th style="width:80px;">Min. (s)</th>
+		<th style="width:80px;">Max. (s)</th>
 	</tr>
 <?php
 foreach($data as $index=>$entry)
@@ -32,15 +32,17 @@ foreach($data as $index=>$entry)
 
 	echo <<<EOD
 	<tr style="background:{$color}">
-		<td style="background:{$color}">{$proc}</td>
-		<td style="background:{$color}; text-align: right">{$entry[1]}</td>
-		<td style="background:{$color}; text-align: right">{$total}</td>
-		<td style="background:{$color}; text-align: right">{$average}</td>
-		<td style="background:{$color}; text-align: right">{$min}</td>
-		<td style="background:{$color}; text-align: right">{$max}</td>
+		<td style="padding:3px 5px;background:{$color}">{$proc}</td>
+		<td style="padding:3px 5px;background:{$color};">{$entry[1]}</td>
+		<td style="padding:3px 5px;background:{$color};">{$total}</td>
+		<td style="padding:3px 5px;background:{$color};">{$average}</td>
+		<td style="padding:3px 5px;background:{$color};">{$min}</td>
+		<td style="padding:3px 5px;background:{$color};">{$max}</td>
 	</tr>
 EOD;
 }
 ?>
 </table>
+<br />
+<br />
 <!-- end of profiling summary -->

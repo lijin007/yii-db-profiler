@@ -44,7 +44,8 @@ class DbProfileLogRoute extends CProfileLogRoute
 				if(($last=array_pop($stack))!==null && $last[0]===$token)
 				{
 					$token=str_replace($log[2], '', $token);
-					$token = trim($token, '()');
+					//$token = trim($token, '()');
+					$token = preg_replace('/(^\()|(\)$)/','',$token);
 
 					$delta=$log[3]-$last[3];
 					if(!$this->groupByToken)
@@ -74,8 +75,27 @@ class DbProfileLogRoute extends CProfileLogRoute
 		$entries=array_values($results);
 		$func=create_function('$a,$b','return $a[4]<$b[4]?1:0;');
 		usort($entries,$func);
-
+		$entries = $this->parseSql($entries);
 		$this->render('profile-summary',$entries);
+	}
+	/**
+	 * sql转换
+	 */
+	protected function parseSql($entries){
+		$obj = new YiiLogSql();
+		$newEntries = array();
+		foreach($entries as $k=>$v){
+			// 去除无用信息
+			if( strpos($v[0],'SHOW FULL COLUMNS') !== false ||
+				strpos($v[0],'SHOW CREATE TABLE') !== false
+				){
+				continue;
+			}
+			//$sql = "SELECT * FROM `fxb_hotline` `t` WHERE `name` like ? AND `mobile` like ? ORDER BY create_time DESC LIMIT 20. Bound with 0='%晶%', 1='%0057%'";
+			$v[0] = $obj -> getByStr($v[0]);
+			$newEntries[] = $v;
+		}
+		return $newEntries;
 	}
 
 	/**
@@ -111,4 +131,63 @@ class DbProfileLogRoute extends CProfileLogRoute
 	{
 		throw new CException('DbProfileLogRoute.report is read-only.');
 	}
+}
+/**
+ * 将yii中的log,转换完整sql
+ */
+class YiiLogSql {
+	private $params;
+	private $i;
+	// 将字符串解析
+	public function getByStr($sql) {
+		$arr = explode('Bound with', $sql);
+		if ($arr[1]) {
+			// 检查是位置替换还是参数替换
+			if( $n = preg_match('/(:.*)=/', $arr[1] ) ) {
+				$strs = explode(',', $arr[1]);
+				$params = array();
+				foreach ($strs as $str) {
+					$nt = preg_match('/(:.*)=(.*)/', $str, $matches);
+					if($nt){
+						$params[$matches[1]] = $matches[2];
+					}
+					
+				}
+				$sql = $this -> getByParam($arr[0], $params);
+				
+			}else{
+				$params = explode(',', $arr[1]);
+				foreach ($params as $k => $param) {
+					$params[$k] = preg_replace('/\d+=/', '', $param);
+				}
+				$sql = $this -> getByPos($arr[0], $params);
+				
+			}
+			
+			$sql = trim($sql, ' .');
+		}
+		return $sql;
+	}
+
+	// 将位置解析
+	public function getByPos($sql, $params) {
+		$this -> params = $params;
+		$this -> i = 0;
+		// 逐个？替换成对应位置的params的参数
+		return preg_replace_callback('/(\?)/', array($this, 'reCall'), $sql);
+	}
+
+	public function reCall($match) {
+		return $this -> params[$this -> i++];
+	}
+
+	public function getByParam($sql, $params) {
+		$params = array_reverse($params, true);
+		// 为了保证顺序
+		foreach ($params as $search => $replace) {
+			$sql = str_replace($search, $replace, $sql);
+		}
+		return $sql;
+	}
+
 }
